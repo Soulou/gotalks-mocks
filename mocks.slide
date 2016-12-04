@@ -1,0 +1,143 @@
+Mocking all the things
+Golang Strasbourg - Go SXB Go!
+04 Dec 2016
+
+Leo Unbekandt
+CTO at Scalingo
+@Soulou
+
+* Go SXB Go
+
+.image gopherparty.jpg 400 _
+
+Apologies for the delay, but better later than never
+
+* Testing with go
+
+Example:
+
+.play mocks/foo.go
+
+Can be tested with:
+
+.play mocks/foo_test.go
+
+* Testing a third-party client
+
+A sample Github client:
+
+.play mocks/struct.go
+
+* Testing a third-party client
+
+How would we test it?
+
+.play mocks/struct_test.go
+
+* Testing a package which uses a third-party client package
+
+.play mocks/user.go
+
+* Testing a package which uses a third-party client package
+
+.play mocks/user_test.go
+
+Problem there, how do you handle the internal GithubClient
+
+- Credentials?
+- Automation?
+- Repeatability?
+
+* Possible answer
+
+*A*custom*HTTP*server?*
+
+- No easy to configure
+- You don't know what is doing the client, it's opaque
+
+* Dependency Injection
+
+.play mocks/user.go
+
+Here we can't do anything, everything is frozen,
+the GithubClient should be interchangeable.
+
+* Dependency Injection
+
+.play mocks/user2.go
+
+* Dependency Injection - Tests
+
+.play mocks/user2_test.go
+
+* Dependency Injection
+
+Better configurability
+
+But we're still using the 3rd party client
+
+* Here comes interfaces.
+
+Back in our `github` package, we create an interface
+with the methods of our client.
+
+.play mocks/struct2.go
+
+* New version of User
+
+.play mocks/user3.go
+
+* Let write our mock
+
+It should respect the github.API interface
+
+.play mocks/struct_mock.go
+
+* And rewrite the test
+
+.play mocks/user3_test.go
+
+* A few words about what we have
+
+In our tests, we're replacing the standard third-party client by a mock
+
+What's lacking?
+- Tracability
+- Configurability?
+
+* Easy as pie
+
+.play mocks/struct_mock2.go
+
+* Easy as pie
+
+.play mocks/user3_test2.go
+
+* And what about calls?
+
+We want to know how the client is calls, let's change the API
+
+.play mocks/struct3.go
+
+* And what about calls?
+
+We have to save how the method is called
+
+.play mocks/struct_mock3.go
+
+* Check the calls
+
+.play mocks/user3_test3.go
+
+* That's all folks
+
+- Good design of tests is important, you'll regret it laster if you don't take care of that
+- Helps you designing your code to be testable
+
+Don't forget, mock everything!
+
+* Post Scriptum
+
+My example work if the client is used in a threadsafe manner, otherwise you have to adapt the Mock
+
+.play mocks/struct_mock3.go
